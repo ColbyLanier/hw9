@@ -19,36 +19,17 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cors());
 
-let authStatus = false;
-
 app.use("/", indexRouter);
 app.use(
   "/blog",
   (req, res, next) => {
-    if (!authStatus) {
-      res.redirect("/auth");
-    }
+    //
+    // check for password soon
+    // maybe on wed
+
     next();
   },
   blogRouter
 );
-
-app.use("/auth", (req, res) => {
-  res.redirect('https://github.com/login/oauth/author/ize?client_id=${process.env.CLIENT_ID}');
-});
-
-app.get("/callback", ({query: {code}}, res) => {
-  const body = {client_id: process.env.CLIENT_ID,
-  client_secret: SECRET,
-  query};
-  const options = {headers:{accept:'application/json'}};
-  axios.post('https://github.com/login/oauth/access_token', body, options)
-    .then((res) => res.data.access_token)
-    .then((token) => {
-      state = true;
-      res.redirect("/blog");
-    })
-    .catch((err) => res.status(500).json({err: err.message}));
-})
 
 export default app;
